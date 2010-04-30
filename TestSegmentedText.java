@@ -169,6 +169,7 @@ public class TestSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testComputeSize() {
     SegmentedText segmentedText = new SegmentedText(shell);
     try {
@@ -310,6 +311,7 @@ public class TestSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testGetBounds() {
     SegmentedText text = new SegmentedText(shell);
     try {

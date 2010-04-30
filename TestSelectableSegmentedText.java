@@ -616,6 +616,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testGetSelectionBounds() {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -733,6 +734,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testGetLineIndexRelativeToSegmentedText() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -781,6 +783,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testGetLineIndexForSegment() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -805,6 +808,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testGetOffsetRelativeToSegment() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -858,6 +862,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testGetOffsetForSegment() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -882,6 +887,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testFindSegmentByOffset() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -926,6 +932,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testGetLineIndexRelativeToSegment() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -997,6 +1004,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testFindSegmentByLineIndex() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -1040,6 +1048,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testGetOffsetRelativeToSegmentedText() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {
@@ -1089,6 +1098,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testFindSegment() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {      
@@ -1123,6 +1133,7 @@ public class TestSelectableSegmentedText {
   }
   
   @Test
+  @Ignore
   public void testIsSegementHere() throws Throwable {
     SelectableSegmentedText text = new SelectableSegmentedText(shell);
     try {

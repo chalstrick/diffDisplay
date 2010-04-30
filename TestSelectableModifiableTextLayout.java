@@ -97,6 +97,7 @@ public class TestSelectableModifiableTextLayout {
   }
   
   @Test
+  @Ignore
   public void testGetLineMetrics() {
     SelectableModifiableTextLayout text = new SelectableModifiableTextLayout(display, null);
     try {      
@@ -141,6 +142,7 @@ public class TestSelectableModifiableTextLayout {
   }
   
   @Test
+  @Ignore
   public void testGetLocation() {
     SelectableModifiableTextLayout text = new SelectableModifiableTextLayout(display, null);
     try {      
@@ -187,6 +189,7 @@ public class TestSelectableModifiableTextLayout {
   }
   
   @Test
+  @Ignore
   public void testGetOffset() {
     SelectableModifiableTextLayout text = new SelectableModifiableTextLayout(display, null);
     try {      
