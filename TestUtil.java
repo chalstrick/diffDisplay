@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Ignore;
+
+@Ignore
 public class TestUtil {
   
   @SuppressWarnings("unchecked")
