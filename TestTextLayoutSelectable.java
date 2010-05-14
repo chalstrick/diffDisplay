@@ -8,6 +8,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.services.IDisposable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -20,21 +21,23 @@ import com.sap.clap.common.text.selection.SelectableSegmentedText;
 import com.sap.clap.common.text.selection.SelectionDirection;
 import com.sap.clap.common.text.selection.SelectionRange;
 import com.sap.clap.common.text.selection.TextLayoutSelectable;
+import com.sap.clap.util.DisposeUtil;
 
+@SuppressWarnings("nls")
 public class TestTextLayoutSelectable {
 
   private Display display;
   private Shell shell;
+  private CharSize charSize;
+
   private SelectableSegmentedText text;
   private TextLayoutSelectable textLayoutSelectable;
-
-  final int charWidth = 8;
-  final int lineHeight = 13;
 
   @Before
   public void setUp() {
     display = new Display();
     shell = new Shell(display);
+    charSize = new CharSize(display, FontUtil.syntaxFont());
     text = new SelectableSegmentedText(shell);
     text.setFont(FontUtil.syntaxFont());
     final Segment segment0 = text.addSegment();
@@ -46,25 +49,32 @@ public class TestTextLayoutSelectable {
     textLayoutSelectable = new TextLayoutSelectable(text, null);
   }
 
+  @After
+  public void cleanUp() {
+    DisposeUtil.dispose((IDisposable) text);
+    DisposeUtil.dispose(shell);
+    DisposeUtil.dispose(display);
+  }
+
   @Test
   public void testSetCursorPosition() {
     assertEquals(new Point(0, 0), textLayoutSelectable.getCaretPosition());
     assertEquals(0, text.getCaretPosition());
 
-    textLayoutSelectable.setCaretLocation(new Point(charWidth, 0));
-    assertEquals(new Point(charWidth, 0), textLayoutSelectable.getCaretPosition());
+    textLayoutSelectable.setCaretLocation(new Point(charSize.getWidth(), 0));
+    assertEquals(new Point(charSize.getWidth(), 0), textLayoutSelectable.getCaretPosition());
     assertEquals(1, text.getCaretPosition());
 
-    textLayoutSelectable.setCaretLocation(new Point(charWidth + charWidth / 2, 0));
-    assertEquals(new Point(charWidth, 0), textLayoutSelectable.getCaretPosition());
+    textLayoutSelectable.setCaretLocation(new Point(charSize.getWidth() + charSize.getWidth() / 2, 0));
+    assertEquals(new Point(charSize.getWidth(), 0), textLayoutSelectable.getCaretPosition());
     assertEquals(1, text.getCaretPosition());
 
-    textLayoutSelectable.setCaretLocation(new Point(0, lineHeight));
-    assertEquals(new Point(0, lineHeight), textLayoutSelectable.getCaretPosition());
+    textLayoutSelectable.setCaretLocation(new Point(0, charSize.getHeight()));
+    assertEquals(new Point(0, charSize.getHeight()), textLayoutSelectable.getCaretPosition());
     assertEquals(8, text.getCaretPosition());
 
-    textLayoutSelectable.setCaretLocation(new Point(0, lineHeight + lineHeight / 2));
-    assertEquals(new Point(0, lineHeight), textLayoutSelectable.getCaretPosition());
+    textLayoutSelectable.setCaretLocation(new Point(0, charSize.getHeight() + charSize.getHeight() / 2));
+    assertEquals(new Point(0, charSize.getHeight()), textLayoutSelectable.getCaretPosition());
     assertEquals(8, text.getCaretPosition());
   }
 
@@ -98,7 +108,7 @@ public class TestTextLayoutSelectable {
     assertEquals(1, text.getCaretPosition());
 
     textLayoutSelectable.deselect();
-    textLayoutSelectable.select(new Point(0, 0), new Point(charWidth / 2, 0));
+    textLayoutSelectable.select(new Point(0, 0), new Point(charSize.getWidth() / 2, 0));
     assertEquals(true, textLayoutSelectable.hasSelection());
     assertEquals(true, text.hasSelection());
     assertEquals("0", textLayoutSelectable.getSelectedText());
@@ -106,7 +116,7 @@ public class TestTextLayoutSelectable {
     assertEquals(1, text.getCaretPosition());
 
     textLayoutSelectable.deselect();
-    textLayoutSelectable.select(new Point(charWidth / 2, 0), new Point(0, 0));
+    textLayoutSelectable.select(new Point(charSize.getWidth() / 2, 0), new Point(0, 0));
     assertEquals(true, textLayoutSelectable.hasSelection());
     assertEquals(true, text.hasSelection());
     assertEquals("0", textLayoutSelectable.getSelectedText());
@@ -114,19 +124,19 @@ public class TestTextLayoutSelectable {
     assertEquals(0, text.getCaretPosition());
 
     textLayoutSelectable.deselect();
-    textLayoutSelectable.select(new Point(0, 0), new Point(2 * charWidth, 0));
+    textLayoutSelectable.select(new Point(0, 0), new Point(2 * charSize.getWidth(), 0));
     assertEquals("012", textLayoutSelectable.getSelectedText());
     assertEquals(SelectionDirection.LEFT_TO_RIGHT, text.getSelectionRange().getDirection());
     assertEquals(3, text.getCaretPosition());
 
     textLayoutSelectable.deselect();
-    textLayoutSelectable.select(new Point(0, lineHeight), new Point(1 * charWidth, lineHeight));
+    textLayoutSelectable.select(new Point(0, charSize.getHeight()), new Point(1 * charSize.getWidth(), charSize.getHeight()));
     assertEquals("89", textLayoutSelectable.getSelectedText());
     assertEquals(SelectionDirection.LEFT_TO_RIGHT, text.getSelectionRange().getDirection());
     assertEquals(10, text.getCaretPosition());
 
     textLayoutSelectable.deselect();
-    textLayoutSelectable.select(new Point(1 * charWidth, 2 * lineHeight), new Point(0, 2 * lineHeight));
+    textLayoutSelectable.select(new Point(1 * charSize.getWidth(), 2 * charSize.getHeight()), new Point(0, 2 * charSize.getHeight()));
     assertEquals("01", textLayoutSelectable.getSelectedText());
     assertEquals(SelectionDirection.RIGHT_TO_LEFT, text.getSelectionRange().getDirection());
     assertEquals(12, text.getCaretPosition());
@@ -143,19 +153,19 @@ public class TestTextLayoutSelectable {
     textLayoutSelectable.selectLine(new Point(0, 0));
     assertEquals(text.getLine(0), textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectLine(new Point(0, lineHeight));
+    textLayoutSelectable.selectLine(new Point(0, charSize.getHeight()));
     assertEquals(text.getLine(1), textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectLine(new Point(0, 2 * lineHeight));
+    textLayoutSelectable.selectLine(new Point(0, 2 * charSize.getHeight()));
     assertEquals(text.getLine(2), textLayoutSelectable.getSelectedText());
   }
 
   @Test
   public void testSelectWord() {
-    textLayoutSelectable.selectWord(new Point(0, 5 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(0, 5 * charSize.getHeight()));
     assertEquals("0", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(charWidth, 5 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(charSize.getWidth(), 5 * charSize.getHeight()));
     // not sure what to expect here
     assertEquals("0 23", textLayoutSelectable.getSelectedText());
     // IDE behavior:
@@ -163,18 +173,18 @@ public class TestTextLayoutSelectable {
     // Firefox and Internet-Explorer behavior:
     // assertEquals("0 ", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(2 * charWidth, 5 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(2 * charSize.getWidth(), 5 * charSize.getHeight()));
     // IDE behavior:
     assertEquals("23", textLayoutSelectable.getSelectedText());
     // Firefox and Internet-Explorer behavior:
     // assertEquals("23 ", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(3 * charWidth, 5 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(3 * charSize.getWidth(), 5 * charSize.getHeight()));
     assertEquals("23", textLayoutSelectable.getSelectedText());
     // Firefox and Internet-Explorer behavior:
     // assertEquals("23 ", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(4 * charWidth, 5 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(4 * charSize.getWidth(), 5 * charSize.getHeight()));
     // not sure what to expect here
     assertEquals("23 5", textLayoutSelectable.getSelectedText());
     // IDE behavior:
@@ -182,34 +192,34 @@ public class TestTextLayoutSelectable {
     // Firefox and Internet-Explorer behavior:
     // assertEquals("23 ", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(5 * charWidth, 5 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(5 * charSize.getWidth(), 5 * charSize.getHeight()));
     assertEquals("5", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(5 * charWidth, 5 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(5 * charSize.getWidth(), 5 * charSize.getHeight()));
     // not sure what to expect here
     // Firefox behavior:
     assertEquals("5", textLayoutSelectable.getSelectedText());
     // Internet-Explorer and IDE behavior
     // assertEquals("\r\n89", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(-1, 5 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(-1, 5 * charSize.getHeight()));
     // not sure what to expect here
     assertEquals("0", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(3 * charWidth, 6 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(3 * charSize.getWidth(), 6 * charSize.getHeight()));
     // not sure what to expect here
     assertEquals("(test", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(4 * charWidth, 6 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(4 * charSize.getWidth(), 6 * charSize.getHeight()));
     assertEquals("test", textLayoutSelectable.getSelectedText());
-    textLayoutSelectable.selectWord(new Point(5 * charWidth, 6 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(5 * charSize.getWidth(), 6 * charSize.getHeight()));
     assertEquals("test", textLayoutSelectable.getSelectedText());
-    textLayoutSelectable.selectWord(new Point(6 * charWidth, 6 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(6 * charSize.getWidth(), 6 * charSize.getHeight()));
     assertEquals("test", textLayoutSelectable.getSelectedText());
-    textLayoutSelectable.selectWord(new Point(7 * charWidth, 6 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(7 * charSize.getWidth(), 6 * charSize.getHeight()));
     assertEquals("test", textLayoutSelectable.getSelectedText());
 
-    textLayoutSelectable.selectWord(new Point(8 * charWidth, 6 * lineHeight));
+    textLayoutSelectable.selectWord(new Point(8 * charSize.getWidth(), 6 * charSize.getHeight()));
     // not sure what to expect here
     assertEquals(") end", textLayoutSelectable.getSelectedText());
   }
@@ -516,18 +526,11 @@ public class TestTextLayoutSelectable {
     text.setSelectionRange(new SelectionRange(0, 1, SelectionDirection.LEFT_TO_RIGHT));
     final PointRange selection = textLayoutSelectable.getSelection();
     assertEquals(new Point(0, 0), selection.getFrom());
-    assertEquals(new Point(charWidth - 1, lineHeight - 1), selection.getTo());
+    assertEquals(new Point(charSize.getWidth() - 1, charSize.getHeight() - 1), selection.getTo());
     assertEquals(0, text.getOffset(selection.getFrom()));
     assertEquals(0, text.getOffset(selection.getTo()));
 
     // TODO
     fail("TODO");
-  }
-
-  @After
-  public void cleanUp() {
-    text.dispose();
-    shell.dispose();
-    display.dispose();
   }
 }

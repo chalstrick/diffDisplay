@@ -26,19 +26,26 @@ import com.sap.clap.common.text.selection.SelectableSegmentedText;
 import com.sap.clap.common.text.selection.SelectableTextLayout;
 import com.sap.clap.common.text.selection.SelectionDirection;
 import com.sap.clap.common.text.selection.SelectionRange;
+import com.sap.clap.util.DisposeUtil;
 
+@SuppressWarnings("nls")
 public class TestSelectableSegmentedText {
 
   private Display display;
   private Shell shell;
-
-  final int charWidth = 6;
-  final int lineHeight = 13;
+  private CharSize charSize;
 
   @Before
   public void setUp() {
     display = new Display();
     shell = new Shell(display);
+    charSize = new CharSize(display);
+  }
+
+  @After
+  public void cleanUp() {
+    DisposeUtil.dispose(shell);
+    DisposeUtil.dispose(display);
   }
 
   @Test
@@ -238,20 +245,20 @@ public class TestSelectableSegmentedText {
       segment2.appendln("012345").append("89");
 
       assertEquals(0, text.getOffset(new Point(0, 0)));
-      assertEquals(0, text.getOffset(new Point(charWidth - 1, lineHeight - 1)));
-      assertEquals(1, text.getOffset(new Point(1 * charWidth, lineHeight - 1)));
-      assertEquals(5, text.getOffset(new Point(5 * charWidth, lineHeight - 1)));
-      assertEquals(8, text.getOffset(new Point(0, lineHeight)));
-      assertEquals(9, text.getOffset(new Point(1 * charWidth, lineHeight + lineHeight - 1)));
-      assertEquals(10, text.getOffset(new Point(1000, lineHeight + lineHeight - 1)));
-      assertEquals(12, text.getOffset(new Point(0, 2 * lineHeight)));
-      assertEquals(17, text.getOffset(new Point(5 * charWidth, 2 * lineHeight)));
-      assertEquals(20, text.getOffset(new Point(0, 3 * lineHeight)));
-      assertEquals(20, text.getOffset(new Point(-1, 3 * lineHeight)));
-      assertEquals(22, text.getOffset(new Point(1000, 3 * lineHeight)));
-      assertEquals(24, text.getOffset(new Point(0, 4 * lineHeight)));
-      assertEquals(30, text.getOffset(new Point(1 * charWidth, 5 * lineHeight)));
-      assertEquals(38, text.getOffset(new Point(1 * charWidth, 6 * lineHeight)));
+      assertEquals(0, text.getOffset(new Point(charSize.getWidth() - 1, charSize.getHeight() - 1)));
+      assertEquals(1, text.getOffset(new Point(1 * charSize.getWidth(), charSize.getHeight() - 1)));
+      assertEquals(5, text.getOffset(new Point(5 * charSize.getWidth(), charSize.getHeight() - 1)));
+      assertEquals(8, text.getOffset(new Point(0, charSize.getHeight())));
+      assertEquals(9, text.getOffset(new Point(1 * charSize.getWidth(), charSize.getHeight() + charSize.getHeight() - 1)));
+      assertEquals(10, text.getOffset(new Point(1000, charSize.getHeight() + charSize.getHeight() - 1)));
+      assertEquals(12, text.getOffset(new Point(0, 2 * charSize.getHeight())));
+      assertEquals(17, text.getOffset(new Point(5 * charSize.getWidth(), 2 * charSize.getHeight())));
+      assertEquals(20, text.getOffset(new Point(0, 3 * charSize.getHeight())));
+      assertEquals(20, text.getOffset(new Point(-1, 3 * charSize.getHeight())));
+      assertEquals(22, text.getOffset(new Point(1000, 3 * charSize.getHeight())));
+      assertEquals(24, text.getOffset(new Point(0, 4 * charSize.getHeight())));
+      assertEquals(30, text.getOffset(new Point(1 * charSize.getWidth(), 5 * charSize.getHeight())));
+      assertEquals(38, text.getOffset(new Point(1 * charSize.getWidth(), 6 * charSize.getHeight())));
 
       assertEquals(0, text.getOffset(new Point(-1, -1)));
       assertEquals(39, text.getOffset(new Point(1000, 1000)));
@@ -636,17 +643,17 @@ public class TestSelectableSegmentedText {
       final int caretWidth = 1;
 
       text.setSelectionRange(new SelectionRange(0, 1, SelectionDirection.LEFT_TO_RIGHT));
-      assertEquals(new Rectangle(0, 0, charWidth, lineHeight), text.getSelectionBounds());
+      assertEquals(new Rectangle(0, 0, charWidth, charSize.getHeight()), text.getSelectionBounds());
 
       text.setSelectionRange(new SelectionRange(2, 6, SelectionDirection.RIGHT_TO_LEFT));
-      assertEquals(new Rectangle(2 * charWidth, 0, 4 * charWidth, lineHeight), text.getSelectionBounds());
+      assertEquals(new Rectangle(2 * charWidth, 0, 4 * charWidth, charSize.getHeight()), text.getSelectionBounds());
 
       text.setSelectionRange(new SelectionRange(0, text.getText().length(), SelectionDirection.LEFT_TO_RIGHT));
       final Rectangle textBounds = text.getBounds();
       assertEquals(new Rectangle(textBounds.x, textBounds.y, textBounds.width - caretWidth, textBounds.height), text.getSelectionBounds());
 
       text.setSelectionRange(new SelectionRange(46, 50, SelectionDirection.LEFT_TO_RIGHT));
-      assertEquals(new Rectangle(0, lineHeight, 23 * charWidth, 2 * lineHeight), text.getSelectionBounds());
+      assertEquals(new Rectangle(0, charSize.getHeight(), 23 * charWidth, 2 * charSize.getHeight()), text.getSelectionBounds());
     } finally {
       text.dispose();
     }
@@ -664,10 +671,10 @@ public class TestSelectableSegmentedText {
       final int charWidth = 8;
 
       final VerifyingSelectionChangedListener<SelectableTextLayout> selectionChangedListener =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, new Rectangle(0, 0, charWidth, lineHeight), null);
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, new Rectangle(0, 0, charWidth, charSize.getHeight()), null);
       text.addSelectionChangedListener(selectionChangedListener);
       final VerifyingSelectionChangedListener<SelectableTextLayout> segment0SelectionChangedListener =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment0, new Rectangle(0, 0, charWidth, lineHeight), null);
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment0, new Rectangle(0, 0, charWidth, charSize.getHeight()), null);
       segment0.addSelectionChangedListener(segment0SelectionChangedListener);
       final VerifyingSelectionChangedListener<SelectableTextLayout> segment1SelectionChangedListener =
         new VerifyingSelectionChangedListener<SelectableTextLayout>();
@@ -683,13 +690,13 @@ public class TestSelectableSegmentedText {
       segment1SelectionChangedListener.verify();
 
       final VerifyingSelectionChangedListener<SelectableTextLayout> selectionChangedListener2 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, new Rectangle(0, 0, 6 * charWidth, lineHeight), new Rectangle(0,
-            0, charWidth, lineHeight));
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, new Rectangle(0, 0, 6 * charWidth, charSize.getHeight()),
+            new Rectangle(0, 0, charWidth, charSize.getHeight()));
       text.addSelectionChangedListener(selectionChangedListener2);
       text.removeSelectionChangedListener(selectionChangedListener);
       final VerifyingSelectionChangedListener<SelectableTextLayout> segment0SelectionChangedListener2 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment0, new Rectangle(0, 0, 6 * charWidth, lineHeight),
-            new Rectangle(0, 0, charWidth, lineHeight));
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment0, new Rectangle(0, 0, 6 * charWidth, charSize.getHeight()),
+            new Rectangle(0, 0, charWidth, charSize.getHeight()));
       segment0.addSelectionChangedListener(segment0SelectionChangedListener2);
       segment0.removeSelectionChangedListener(segment0SelectionChangedListener);
       text.setSelectionRange(new SelectionRange(0, 6, SelectionDirection.LEFT_TO_RIGHT));
@@ -702,10 +709,11 @@ public class TestSelectableSegmentedText {
       text.removeSelectionChangedListener(selectionChangedListener2);
       segment0.removeSelectionChangedListener(segment0SelectionChangedListener2);
       final VerifyingSelectionChangedListener<SelectableTextLayout> selectionChangedListener3 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, null, new Rectangle(0, 0, 6 * charWidth, lineHeight));
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, null, new Rectangle(0, 0, 6 * charWidth, charSize.getHeight()));
       text.addSelectionChangedListener(selectionChangedListener3);
       final VerifyingSelectionChangedListener<SelectableTextLayout> segment0SelectionChangedListener3 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment0, null, new Rectangle(0, 0, 6 * charWidth, lineHeight));
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment0, null,
+            new Rectangle(0, 0, 6 * charWidth, charSize.getHeight()));
       segment0.addSelectionChangedListener(segment0SelectionChangedListener3);
       text.clearSelection();
       text.clearSelection();
@@ -719,13 +727,15 @@ public class TestSelectableSegmentedText {
       segment0.removeSelectionChangedListener(segment0SelectionChangedListener3);
       segment1.removeSelectionChangedListener(segment1SelectionChangedListener);
       final VerifyingSelectionChangedListener<SelectableTextLayout> selectionChangedListener4 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, new Rectangle(0, 2 * lineHeight, 6 * charWidth, lineHeight), null);
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, new Rectangle(0, 2 * charSize.getHeight(), 6 * charWidth,
+            charSize.getHeight()), null);
       text.addSelectionChangedListener(selectionChangedListener4);
       final VerifyingSelectionChangedListener<SelectableTextLayout> segment0SelectionChangedListener4 =
         new VerifyingSelectionChangedListener<SelectableTextLayout>();
       segment0.addSelectionChangedListener(segment0SelectionChangedListener4);
       final VerifyingSelectionChangedListener<SelectableTextLayout> segment1SelectionChangedListener2 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment1, new Rectangle(0, 0, 6 * charWidth, lineHeight), null);
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment1, new Rectangle(0, 0, 6 * charWidth, charSize.getHeight()),
+            null);
       segment1.addSelectionChangedListener(segment1SelectionChangedListener2);
       text.setSelectionRange(new SelectionRange(49, 55, SelectionDirection.LEFT_TO_RIGHT));
       selectionChangedListener4.verify();
@@ -736,16 +746,16 @@ public class TestSelectableSegmentedText {
       segment0.removeSelectionChangedListener(segment0SelectionChangedListener4);
       segment1.removeSelectionChangedListener(segment1SelectionChangedListener2);
       final VerifyingSelectionChangedListener<SelectableTextLayout> selectionChangedListener5 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, new Rectangle(0, lineHeight, 23 * charWidth, 2 * lineHeight),
-            new Rectangle(0, 2 * lineHeight, 6 * charWidth, lineHeight));
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(text, new Rectangle(0, charSize.getHeight(), 23 * charWidth,
+            2 * charSize.getHeight()), new Rectangle(0, 2 * charSize.getHeight(), 6 * charWidth, charSize.getHeight()));
       text.addSelectionChangedListener(selectionChangedListener5);
       final VerifyingSelectionChangedListener<SelectableTextLayout> segment0SelectionChangedListener5 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment0, new Rectangle(22 * charWidth, lineHeight, charWidth,
-            lineHeight), null);
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment0, new Rectangle(22 * charWidth, charSize.getHeight(),
+            charWidth, charSize.getHeight()), null);
       segment0.addSelectionChangedListener(segment0SelectionChangedListener5);
       final VerifyingSelectionChangedListener<SelectableTextLayout> segment1SelectionChangedListener3 =
-        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment1, new Rectangle(0, 0, 7 * charWidth, lineHeight),
-            new Rectangle(0, 0, 6 * charWidth, lineHeight));
+        new VerifyingSelectionChangedListener<SelectableTextLayout>(segment1, new Rectangle(0, 0, 7 * charWidth, charSize.getHeight()),
+            new Rectangle(0, 0, 6 * charWidth, charSize.getHeight()));
       segment1.addSelectionChangedListener(segment1SelectionChangedListener3);
       text.setSelectionRange(new SelectionRange(46, 56, SelectionDirection.LEFT_TO_RIGHT));
       selectionChangedListener5.verify();
@@ -898,11 +908,5 @@ public class TestSelectableSegmentedText {
   public void testGetLineBounds() {
     // TODO
     fail("TODO");
-  }
-
-  @After
-  public void cleanUp() {
-    shell.dispose();
-    display.dispose();
   }
 }

@@ -18,20 +18,28 @@ import org.junit.Test;
 
 import com.sap.clap.common.text.Segment;
 import com.sap.clap.common.text.SegmentedText;
+import com.sap.clap.util.DisposeUtil;
 
+@SuppressWarnings("nls")
 public class TestSegmentedText {
 
   private Display display;
   private Shell shell;
+  private CharSize charSize;
 
-  final int charWidth = 6;
-  final int lineHeight = 13;
   final int caretWidth = 1;
 
   @Before
   public void setUp() {
     display = new Display();
     shell = new Shell(display);
+    charSize = new CharSize(display);
+  }
+
+  @After
+  public void cleanUp() {
+    DisposeUtil.dispose(shell);
+    DisposeUtil.dispose(display);
   }
 
   @Test
@@ -176,21 +184,21 @@ public class TestSegmentedText {
       assertSize(0, 0, segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
       final Segment segment0 = segmentedText.addSegment();
-      assertSize(0, lineHeight, segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+      assertSize(0, charSize.getHeight(), segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
       segment0.append("123");
-      assertSize(3 * charWidth + caretWidth, lineHeight, segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+      assertSize(3 * charSize.getWidth() + caretWidth, charSize.getHeight(), segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
       final Segment segment1 = segmentedText.addSegment();
       segment1.append("12345");
-      assertSize(5 * charWidth + caretWidth, 2 * lineHeight, segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+      assertSize(5 * charSize.getWidth() + caretWidth, 2 * charSize.getHeight(), segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
       final Segment segment2 = segmentedText.addSegment();
       segment2.append("1234");
-      assertSize(5 * charWidth + caretWidth, 3 * lineHeight, segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+      assertSize(5 * charSize.getWidth() + caretWidth, 3 * charSize.getHeight(), segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
       segmentedText.deleteSegment(1);
-      assertSize(4 * charWidth + caretWidth, 2 * lineHeight, segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+      assertSize(4 * charSize.getWidth() + caretWidth, 2 * charSize.getHeight(), segmentedText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     } finally {
       segmentedText.dispose();
     }
@@ -205,8 +213,9 @@ public class TestSegmentedText {
       final Segment segment1 = segmentedText.addSegment();
       segment1.appendln("0123").append("67");
 
-      assertEquals(new Rectangle(0, 0, 5 * charWidth, 2 * lineHeight), getSegmentArea(segmentedText, segment0));
-      assertEquals(new Rectangle(0, 2 * lineHeight, 4 * charWidth, 2 * lineHeight), getSegmentArea(segmentedText, segment1));
+      assertEquals(new Rectangle(0, 0, 5 * charSize.getWidth(), 2 * charSize.getHeight()), getSegmentArea(segmentedText, segment0));
+      assertEquals(new Rectangle(0, 2 * charSize.getHeight(), 4 * charSize.getWidth(), 2 * charSize.getHeight()), getSegmentArea(
+        segmentedText, segment1));
     } finally {
       segmentedText.dispose();
     }
@@ -228,20 +237,21 @@ public class TestSegmentedText {
 
       assertEquals(new Point(-5, -5), getPointRelativeToSegmentLocation(segmentedText, segment0, new Point(-5, -5)));
       assertEquals(new Point(0, 0), getPointRelativeToSegmentLocation(segmentedText, segment0, new Point(0, 0)));
-      assertEquals(new Point(3 * charWidth, lineHeight), getPointRelativeToSegmentLocation(segmentedText, segment0, new Point(
-          3 * charWidth, lineHeight)));
-      assertEquals(new Point(3 * charWidth, 3 * lineHeight), getPointRelativeToSegmentLocation(segmentedText, segment0, new Point(
-          3 * charWidth, 3 * lineHeight)));
+      assertEquals(new Point(3 * charSize.getWidth(), charSize.getHeight()), getPointRelativeToSegmentLocation(segmentedText, segment0,
+        new Point(3 * charSize.getWidth(), charSize.getHeight())));
+      assertEquals(new Point(3 * charSize.getWidth(), 3 * charSize.getHeight()), getPointRelativeToSegmentLocation(segmentedText, segment0,
+        new Point(3 * charSize.getWidth(), 3 * charSize.getHeight())));
       assertEquals(new Point(1000, 1000), getPointRelativeToSegmentLocation(segmentedText, segment0, new Point(1000, 1000)));
 
-      assertEquals(new Point(-5, -5 - 2 * lineHeight), getPointRelativeToSegmentLocation(segmentedText, segment1, new Point(-5, -5)));
-      assertEquals(new Point(0, 0 - 2 * lineHeight), getPointRelativeToSegmentLocation(segmentedText, segment1, new Point(0, 0)));
-      assertEquals(new Point(3 * charWidth, lineHeight - 2 * lineHeight), getPointRelativeToSegmentLocation(segmentedText, segment1,
-        new Point(3 * charWidth, lineHeight)));
-      assertEquals(new Point(3 * charWidth, 3 * lineHeight - 2 * lineHeight), getPointRelativeToSegmentLocation(segmentedText, segment1,
-        new Point(3 * charWidth, 3 * lineHeight)));
-      assertEquals(new Point(1000, 1000 - 2 * lineHeight),
-        getPointRelativeToSegmentLocation(segmentedText, segment1, new Point(1000, 1000)));
+      assertEquals(new Point(-5, -5 - 2 * charSize.getHeight()), getPointRelativeToSegmentLocation(segmentedText, segment1, new Point(-5,
+          -5)));
+      assertEquals(new Point(0, 0 - 2 * charSize.getHeight()), getPointRelativeToSegmentLocation(segmentedText, segment1, new Point(0, 0)));
+      assertEquals(new Point(3 * charSize.getWidth(), charSize.getHeight() - 2 * charSize.getHeight()), getPointRelativeToSegmentLocation(
+        segmentedText, segment1, new Point(3 * charSize.getWidth(), charSize.getHeight())));
+      assertEquals(new Point(3 * charSize.getWidth(), 3 * charSize.getHeight() - 2 * charSize.getHeight()),
+        getPointRelativeToSegmentLocation(segmentedText, segment1, new Point(3 * charSize.getWidth(), 3 * charSize.getHeight())));
+      assertEquals(new Point(1000, 1000 - 2 * charSize.getHeight()), getPointRelativeToSegmentLocation(segmentedText, segment1, new Point(
+          1000, 1000)));
     } finally {
       segmentedText.dispose();
     }
@@ -270,21 +280,26 @@ public class TestSegmentedText {
       final Segment segment2 = text.addSegment();
       segment2.appendln("012345").append("89");
 
-      assertEquals(new Rectangle(0, 0, 6 * charWidth - 1, 2 * lineHeight - 1), getRectangleRelativeToSegmentedTextLocation(text, segment0,
-        new Rectangle(0, 0, 6 * charWidth - 1, 2 * lineHeight - 1)));
-      assertEquals(new Rectangle(0, 2 * lineHeight, 6 * charWidth - 1, 3 * lineHeight - 1), getRectangleRelativeToSegmentedTextLocation(
-        text, segment1, new Rectangle(0, 0, 6 * charWidth - 1, 3 * lineHeight - 1)));
-      assertEquals(new Rectangle(0, 5 * lineHeight, 6 * charWidth - 1, 2 * lineHeight - 1), getRectangleRelativeToSegmentedTextLocation(
-        text, segment2, new Rectangle(0, 0, 6 * charWidth - 1, 2 * lineHeight - 1)));
+      assertEquals(new Rectangle(0, 0, 6 * charSize.getWidth() - 1, 2 * charSize.getHeight() - 1),
+        getRectangleRelativeToSegmentedTextLocation(text, segment0, new Rectangle(0, 0, 6 * charSize.getWidth() - 1,
+            2 * charSize.getHeight() - 1)));
+      assertEquals(new Rectangle(0, 2 * charSize.getHeight(), 6 * charSize.getWidth() - 1, 3 * charSize.getHeight() - 1),
+        getRectangleRelativeToSegmentedTextLocation(text, segment1, new Rectangle(0, 0, 6 * charSize.getWidth() - 1,
+            3 * charSize.getHeight() - 1)));
+      assertEquals(new Rectangle(0, 5 * charSize.getHeight(), 6 * charSize.getWidth() - 1, 2 * charSize.getHeight() - 1),
+        getRectangleRelativeToSegmentedTextLocation(text, segment2, new Rectangle(0, 0, 6 * charSize.getWidth() - 1,
+            2 * charSize.getHeight() - 1)));
 
-      assertEquals(new Rectangle(0, 5 * lineHeight, 6 * charWidth - 1, 2 * lineHeight), getRectangleRelativeToSegmentedTextLocation(text,
-        segment2, new Rectangle(0, 0, 6 * charWidth - 1, 2 * lineHeight)));
+      assertEquals(new Rectangle(0, 5 * charSize.getHeight(), 6 * charSize.getWidth() - 1, 2 * charSize.getHeight()),
+        getRectangleRelativeToSegmentedTextLocation(text, segment2, new Rectangle(0, 0, 6 * charSize.getWidth() - 1,
+            2 * charSize.getHeight())));
 
-      assertEquals(new Rectangle(10, -5, 6 * charWidth - 1 - 10, 2 * lineHeight - 1 + 5), getRectangleRelativeToSegmentedTextLocation(text,
-        segment0, new Rectangle(10, -5, 6 * charWidth - 1 - 10, 2 * lineHeight - 1 + 5)));
+      assertEquals(new Rectangle(10, -5, 6 * charSize.getWidth() - 1 - 10, 2 * charSize.getHeight() - 1 + 5),
+        getRectangleRelativeToSegmentedTextLocation(text, segment0, new Rectangle(10, -5, 6 * charSize.getWidth() - 1 - 10,
+            2 * charSize.getHeight() - 1 + 5)));
 
-      assertEquals(new Rectangle(0, 2 * lineHeight, charWidth - 1, lineHeight - 1), getRectangleRelativeToSegmentedTextLocation(text,
-        segment1, new Rectangle(0, 0, charWidth - 1, lineHeight - 1)));
+      assertEquals(new Rectangle(0, 2 * charSize.getHeight(), charSize.getWidth() - 1, charSize.getHeight() - 1),
+        getRectangleRelativeToSegmentedTextLocation(text, segment1, new Rectangle(0, 0, charSize.getWidth() - 1, charSize.getHeight() - 1)));
     } finally {
       text.dispose();
     }
@@ -335,15 +350,15 @@ public class TestSegmentedText {
 
       final Segment segment0 = text.addSegment();
       segment0.append("012345");
-      assertEquals(new Rectangle(0, 0, 6 * charWidth + caretWidth, lineHeight), text.getBounds());
+      assertEquals(new Rectangle(0, 0, 6 * charSize.getWidth() + caretWidth, charSize.getHeight()), text.getBounds());
 
       final Segment segment1 = text.addSegment();
       segment1.append("012345678");
-      assertEquals(new Rectangle(0, 0, 9 * charWidth + caretWidth, 2 * lineHeight), text.getBounds());
+      assertEquals(new Rectangle(0, 0, 9 * charSize.getWidth() + caretWidth, 2 * charSize.getHeight()), text.getBounds());
 
       final Segment segment2 = text.addSegment();
       segment2.appendln("0123").append("0");
-      assertEquals(new Rectangle(0, 0, 9 * charWidth + caretWidth, 4 * lineHeight), text.getBounds());
+      assertEquals(new Rectangle(0, 0, 9 * charSize.getWidth() + caretWidth, 4 * charSize.getHeight()), text.getBounds());
     } finally {
       text.dispose();
     }
@@ -740,12 +755,12 @@ public class TestSegmentedText {
       assertEquals(segment0, findSegment(text, new Point(0, 0)));
       assertEquals(segment0, findSegment(text, new Point(100000, 0)));
       assertEquals(segment0, findSegment(text, new Point(-10, 0)));
-      assertEquals(segment0, findSegment(text, new Point(0, 2 * lineHeight - 1)));
-      assertEquals(segment0, findSegment(text, new Point(6 * charWidth - 1, 2 * lineHeight - 1)));
-      assertEquals(segment1, findSegment(text, new Point(0, 2 * lineHeight)));
-      assertEquals(segment1, findSegment(text, new Point(0, 5 * lineHeight - 1)));
-      assertEquals(segment2, findSegment(text, new Point(0, 5 * lineHeight)));
-      assertEquals(segment2, findSegment(text, new Point(0, 7 * lineHeight - 1)));
+      assertEquals(segment0, findSegment(text, new Point(0, 2 * charSize.getHeight() - 1)));
+      assertEquals(segment0, findSegment(text, new Point(6 * charSize.getWidth() - 1, 2 * charSize.getHeight() - 1)));
+      assertEquals(segment1, findSegment(text, new Point(0, 2 * charSize.getHeight())));
+      assertEquals(segment1, findSegment(text, new Point(0, 5 * charSize.getHeight() - 1)));
+      assertEquals(segment2, findSegment(text, new Point(0, 5 * charSize.getHeight())));
+      assertEquals(segment2, findSegment(text, new Point(0, 7 * charSize.getHeight() - 1)));
       assertEquals(segment2, findSegment(text, new Point(0, 1000000000)));
     } finally {
       text.dispose();
@@ -772,17 +787,17 @@ public class TestSegmentedText {
       assertEquals(0, isSegmentHere(text, segment0, new Point(0, 0)));
       assertEquals(0, isSegmentHere(text, segment0, new Point(100000, 0)));
       assertEquals(0, isSegmentHere(text, segment0, new Point(-10, 0)));
-      assertEquals(0, isSegmentHere(text, segment0, new Point(0, 2 * lineHeight - 1)));
-      assertEquals(0, isSegmentHere(text, segment0, new Point(6 * charWidth - 1, 2 * lineHeight - 1)));
-      assertEquals(-1, isSegmentHere(text, segment0, new Point(0, 2 * lineHeight)));
-      assertEquals(1, isSegmentHere(text, segment1, new Point(0, 2 * lineHeight - 1)));
-      assertEquals(0, isSegmentHere(text, segment1, new Point(0, 2 * lineHeight)));
-      assertEquals(0, isSegmentHere(text, segment1, new Point(0, 5 * lineHeight - 1)));
-      assertEquals(-1, isSegmentHere(text, segment1, new Point(0, 5 * lineHeight)));
-      assertEquals(1, isSegmentHere(text, segment2, new Point(0, 5 * lineHeight - 1)));
-      assertEquals(0, isSegmentHere(text, segment2, new Point(0, 5 * lineHeight)));
-      assertEquals(0, isSegmentHere(text, segment2, new Point(0, 7 * lineHeight - 1)));
-      assertEquals(-1, isSegmentHere(text, segment2, new Point(0, 7 * lineHeight)));
+      assertEquals(0, isSegmentHere(text, segment0, new Point(0, 2 * charSize.getHeight() - 1)));
+      assertEquals(0, isSegmentHere(text, segment0, new Point(6 * charSize.getWidth() - 1, 2 * charSize.getHeight() - 1)));
+      assertEquals(-1, isSegmentHere(text, segment0, new Point(0, 2 * charSize.getHeight())));
+      assertEquals(1, isSegmentHere(text, segment1, new Point(0, 2 * charSize.getHeight() - 1)));
+      assertEquals(0, isSegmentHere(text, segment1, new Point(0, 2 * charSize.getHeight())));
+      assertEquals(0, isSegmentHere(text, segment1, new Point(0, 5 * charSize.getHeight() - 1)));
+      assertEquals(-1, isSegmentHere(text, segment1, new Point(0, 5 * charSize.getHeight())));
+      assertEquals(1, isSegmentHere(text, segment2, new Point(0, 5 * charSize.getHeight() - 1)));
+      assertEquals(0, isSegmentHere(text, segment2, new Point(0, 5 * charSize.getHeight())));
+      assertEquals(0, isSegmentHere(text, segment2, new Point(0, 7 * charSize.getHeight() - 1)));
+      assertEquals(-1, isSegmentHere(text, segment2, new Point(0, 7 * charSize.getHeight())));
     } finally {
       text.dispose();
     }
@@ -792,11 +807,5 @@ public class TestSegmentedText {
   private int isSegmentHere(final SegmentedText text, final Segment segment, final Point point) throws Throwable {
     return (Integer) TestUtil.invokeMethod(text, "isSegmentHere", new Class[] { Segment.class, Point.class },
       new Object[] { segment, point });
-  }
-
-  @After
-  public void cleanUp() {
-    shell.dispose();
-    display.dispose();
   }
 }

@@ -24,16 +24,26 @@ import com.sap.clap.common.text.selection.SelectableModifiableTextLayout;
 import com.sap.clap.common.text.selection.SelectableTextLayout;
 import com.sap.clap.common.text.selection.SelectionDirection;
 import com.sap.clap.common.text.selection.SelectionRange;
+import com.sap.clap.util.DisposeUtil;
 
+@SuppressWarnings("nls")
 public class TestSelectableModifiableTextLayout {
 
   private Display display;
   private Shell shell;
+  private CharSize charSize;
 
   @Before
   public void setUp() {
     display = new Display();
     shell = new Shell(display);
+    charSize = new CharSize(display);
+  }
+
+  @After
+  public void cleanUp() {
+    DisposeUtil.dispose(shell);
+    DisposeUtil.dispose(display);
   }
 
   @Test
@@ -469,13 +479,13 @@ public class TestSelectableModifiableTextLayout {
       assertNull(text.getSelectionBounds());
 
       text.setSelectionRange(new SelectionRange(0, 1, SelectionDirection.LEFT_TO_RIGHT));
-      assertEquals(new Rectangle(0, 0, 6, 13), text.getSelectionBounds());
+      assertEquals(new Rectangle(0, 0, charSize.getWidth(), charSize.getHeight()), text.getSelectionBounds());
 
       text.setSelectionRange(new SelectionRange(16, 22, SelectionDirection.RIGHT_TO_LEFT));
-      assertEquals(new Rectangle(0, 13, 8 * 6, 2 * 13), text.getSelectionBounds());
+      assertEquals(new Rectangle(0, charSize.getHeight(), 8 * charSize.getWidth(), 2 * charSize.getHeight()), text.getSelectionBounds());
 
       text.setSelectionRange(new SelectionRange(0, text.getText().length(), SelectionDirection.LEFT_TO_RIGHT));
-      assertEquals(new Rectangle(0, 0, 8 * 6, 3 * 13), text.getSelectionBounds());
+      assertEquals(new Rectangle(0, 0, 8 * charSize.getWidth(), 3 * charSize.getHeight()), text.getSelectionBounds());
       // why in this case with Eclipse 3.5 text.getBounds() is not equal to text.getSelectionBounds()??
       // assertEquals(text.getBounds(), text.getSelectionBounds());
     } finally {
@@ -539,11 +549,5 @@ public class TestSelectableModifiableTextLayout {
   public void testGetLineBounds() {
     // TODO
     fail("TODO");
-  }
-
-  @After
-  public void cleanUp() {
-    shell.dispose();
-    display.dispose();
   }
 }

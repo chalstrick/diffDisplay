@@ -12,14 +12,23 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sap.clap.common.text.ModifiableTextLayout;
+import com.sap.clap.util.DisposeUtil;
 
+@SuppressWarnings("nls")
 public class TestModifiableTextLayout {
 
   private Display display;
+  private CharSize charSize;
 
   @Before
   public void setUp() {
     display = new Display();
+    charSize = new CharSize(display);
+  }
+
+  @After
+  public void cleanUp() {
+    DisposeUtil.dispose(display);
   }
 
   @Test
@@ -408,7 +417,7 @@ public class TestModifiableTextLayout {
     try {
       final String txt = "0123456789012345678901234567890123456789";
       text.setText(txt);
-      assertEquals(txt.length() * TestUtil.getCharWidth(), text.getBounds().width);
+      assertEquals(txt.length() * charSize.getWidth(), text.getBounds().width);
       text.setWidth(100);
       assertTrue(text.getBounds().width <= 100);
     } finally {
@@ -421,26 +430,26 @@ public class TestModifiableTextLayout {
     final ModifiableTextLayout text = new ModifiableTextLayout(display);
     try {
       // empty text has already one line
-      assertBounds(0, 0, 0, 1 * TestUtil.getLineHeight(), text.getBounds());
+      assertBounds(0, 0, 0, 1 * charSize.getHeight(), text.getBounds());
       text.setText("123");
-      assertBounds(0, 0, 3 * TestUtil.getCharWidth(), 1 * TestUtil.getLineHeight(), text.getBounds());
+      assertBounds(0, 0, 3 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds());
       assertEquals(text.getBounds(), text.getBounds(0, 3));
-      assertBounds(0, 0, 1 * TestUtil.getCharWidth(), 1 * TestUtil.getLineHeight(), text.getBounds(0, 0));
-      assertBounds(0, 0, 2 * TestUtil.getCharWidth(), 1 * TestUtil.getLineHeight(), text.getBounds(0, 1));
-      assertBounds(1 * TestUtil.getCharWidth(), 0, 1 * TestUtil.getCharWidth(), 1 * TestUtil.getLineHeight(), text.getBounds(1, 1));
-      assertBounds(1 * TestUtil.getCharWidth(), 0, 2 * TestUtil.getCharWidth(), 1 * TestUtil.getLineHeight(), text.getBounds(1, 2));
+      assertBounds(0, 0, 1 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds(0, 0));
+      assertBounds(0, 0, 2 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds(0, 1));
+      assertBounds(1 * charSize.getWidth(), 0, 1 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds(1, 1));
+      assertBounds(1 * charSize.getWidth(), 0, 2 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds(1, 2));
 
       text.appendln();
       text.append("56");
-      assertBounds(0, 0, 3 * TestUtil.getCharWidth(), 2 * TestUtil.getLineHeight(), text.getBounds());
+      assertBounds(0, 0, 3 * charSize.getWidth(), 2 * charSize.getHeight(), text.getBounds());
 
       text.append("78");
-      assertBounds(0, 0, 4 * TestUtil.getCharWidth(), 2 * TestUtil.getLineHeight(), text.getBounds());
+      assertBounds(0, 0, 4 * charSize.getWidth(), 2 * charSize.getHeight(), text.getBounds());
       assertEquals(text.getBounds(), text.getBounds(0, text.getText().length() - 1));
 
       text.appendln();
       text.append("12");
-      assertBounds(0, 1 * TestUtil.getLineHeight(), 4 * TestUtil.getCharWidth(), 2 * TestUtil.getLineHeight(), text.getBounds(7, 11));
+      assertBounds(0, 1 * charSize.getHeight(), 4 * charSize.getWidth(), 2 * charSize.getHeight(), text.getBounds(7, 11));
     } finally {
       text.dispose();
     }
@@ -500,10 +509,5 @@ public class TestModifiableTextLayout {
     } finally {
       text.dispose();
     }
-  }
-
-  @After
-  public void cleanUp() {
-    display.dispose();
   }
 }

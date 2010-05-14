@@ -10,13 +10,10 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.swt.graphics.TextLayout;
-import org.eclipse.swt.widgets.Display;
 import org.junit.Ignore;
 
-import com.sap.clap.util.DisposeUtil;
-
 @Ignore
+@SuppressWarnings("nls")
 public class TestUtil {
 
   @SuppressWarnings("unchecked")
@@ -65,23 +62,5 @@ public class TestUtil {
         actualList.remove(o);
       }
     }
-  }
-
-  public static int getLineHeight() {
-    int lineHeight;
-    final TextLayout textLayout = new TextLayout(Display.getCurrent());
-    textLayout.setText("X");
-    lineHeight = textLayout.getBounds().height;
-    DisposeUtil.dispose(textLayout);
-    return lineHeight;
-  }
-
-  public static int getCharWidth() {
-    int charWidth;
-    final TextLayout textLayout = new TextLayout(Display.getCurrent());
-    textLayout.setText("X");
-    charWidth = textLayout.getBounds().width;
-    DisposeUtil.dispose(textLayout);
-    return charWidth;
   }
 }

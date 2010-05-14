@@ -14,16 +14,26 @@ import org.junit.Test;
 
 import com.sap.clap.common.text.ModifiableText;
 import com.sap.clap.common.text.Text;
+import com.sap.clap.util.DisposeUtil;
 
+@SuppressWarnings("nls")
 public class TestText {
 
   private Display display;
   private Shell shell;
+  private CharSize charSize;
 
   @Before
   public void setUp() {
     display = new Display();
     shell = new Shell(display);
+    charSize = new CharSize(display);
+  }
+
+  @After
+  public void cleanUp() {
+    DisposeUtil.dispose(shell);
+    DisposeUtil.dispose(display);
   }
 
   @Test
@@ -407,7 +417,7 @@ public class TestText {
     final ModifiableText text = new Text(shell);
     try {
       text.setText("0123456789012345678901234567890123456789");
-      assertEquals(240, text.getBounds().width);
+      assertEquals(40 * charSize.getWidth(), text.getBounds().width);
       text.setWidth(100);
       assertTrue(text.getBounds().width <= 100);
     } finally {
@@ -417,32 +427,29 @@ public class TestText {
 
   @Test
   public void testGetBounds() {
-    final int charWidth = 6;
-    final int lineHeight = 13;
-
     final ModifiableText text = new Text(shell);
     try {
       // empty text has already one line
-      assertBounds(0, 0, 0, 1 * lineHeight, text.getBounds());
+      assertBounds(0, 0, 0, 1 * charSize.getHeight(), text.getBounds());
       text.setText("123");
-      assertBounds(0, 0, 3 * charWidth, 1 * lineHeight, text.getBounds());
+      assertBounds(0, 0, 3 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds());
       assertEquals(text.getBounds(), text.getBounds(0, 3));
-      assertBounds(0, 0, 1 * charWidth, 1 * lineHeight, text.getBounds(0, 0));
-      assertBounds(0, 0, 2 * charWidth, 1 * lineHeight, text.getBounds(0, 1));
-      assertBounds(1 * charWidth, 0, 1 * charWidth, 1 * lineHeight, text.getBounds(1, 1));
-      assertBounds(1 * charWidth, 0, 2 * charWidth, 1 * lineHeight, text.getBounds(1, 2));
+      assertBounds(0, 0, 1 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds(0, 0));
+      assertBounds(0, 0, 2 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds(0, 1));
+      assertBounds(1 * charSize.getWidth(), 0, 1 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds(1, 1));
+      assertBounds(1 * charSize.getWidth(), 0, 2 * charSize.getWidth(), 1 * charSize.getHeight(), text.getBounds(1, 2));
 
       text.appendln();
       text.append("56");
-      assertBounds(0, 0, 3 * charWidth, 2 * lineHeight, text.getBounds());
+      assertBounds(0, 0, 3 * charSize.getWidth(), 2 * charSize.getHeight(), text.getBounds());
 
       text.append("78");
-      assertBounds(0, 0, 4 * charWidth, 2 * lineHeight, text.getBounds());
+      assertBounds(0, 0, 4 * charSize.getWidth(), 2 * charSize.getHeight(), text.getBounds());
       assertEquals(text.getBounds(), text.getBounds(0, text.getText().length() - 1));
 
       text.appendln();
       text.append("12");
-      assertBounds(0, 1 * lineHeight, 4 * charWidth, 2 * lineHeight, text.getBounds(7, 11));
+      assertBounds(0, 1 * charSize.getHeight(), 4 * charSize.getWidth(), 2 * charSize.getHeight(), text.getBounds(7, 11));
     } finally {
       text.dispose();
     }
@@ -466,11 +473,5 @@ public class TestText {
   public void testGetLine() {
     // TODO
     fail("TODO");
-  }
-
-  @After
-  public void cleanUp() {
-    shell.dispose();
-    display.dispose();
   }
 }
